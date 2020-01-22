@@ -13,6 +13,7 @@ import jp.co.cyberagent.android.gpuimage.filter.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.roundToInt
 
+
 class MainActivity : AppCompatActivity() {
 
     private val images = arrayOf(R.drawable.image1, R.drawable.image2, R.drawable.image3,
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
      * @param list          Filters to apply to images
      */
     private fun createThumbnail(res: Int, size: Int, list: MutableList<GPUImageFilter>): Bitmap {
-        val image = BitmapFactory.decodeResource(resources, res)
+        val image = BitmapUtils.decodeSampledBitmapFromResource(resources, res, size, size)
         val scale: Float =
             if (image.width < image.height) {
                 size / image.width.toFloat()
