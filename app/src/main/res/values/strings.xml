@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">inmagine</string>
+    <string name="render">Render</string>
+    <string name="number_of_squares_in_a_row">Number of squares in a row</string>
+    <string name="grid_size">Grid size (2)</string>
+    <string name="two">2</string>
+    <string name="build">Build</string>
+    <string name="draw">Draw</string>
+    <string name="monochrome">Monochrome</string>
+    <string name="haze">Haze</string>
+    <string name="sepia_tone">Sepia Tone</string>
+    <string name="color_inversion">Color Inversion</string>
+    <string name="pixellate">Pixellate</string>
+    <string name="crosshatch">Crosshatch</string>
+    <string name="sketch">Sketch</string>
+    <string name="toon">Toon</string>
+</resources>
