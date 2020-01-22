@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -106,11 +107,10 @@ class MainActivity : AppCompatActivity() {
                 size / image.height.toFloat()
             }
 
-        val scaledWidth = (image.width * scale).toInt()
-        val scaledHeight = (image.height * scale).toInt()
+        val scaledWidth = (image.width * scale).roundToInt()
+        val scaledHeight = (image.height * scale).roundToInt()
 
         val scaled = Bitmap.createScaledBitmap(image, scaledWidth, scaledHeight, true)
-
         val croppedX = (scaledWidth - size) / 2
         val croppedY = (scaledHeight - size) / 2
         val cropped = Bitmap.createBitmap(scaled, croppedX, croppedY, size, size)
