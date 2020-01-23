@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:maxLength="3"
             android:inputType="number"
-            android:hint="@string/row"
+            android:hint="@string/column"
             android:gravity="center_horizontal"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp" />
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:maxLength="3"
             android:inputType="number"
-            android:hint="@string/column"
+            android:hint="@string/row"
             android:gravity="center_horizontal"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp" />
