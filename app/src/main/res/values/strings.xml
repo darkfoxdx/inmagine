@@ -14,4 +14,6 @@
     <string name="crosshatch">Crosshatch</string>
     <string name="sketch">Sketch</string>
     <string name="toon">Toon</string>
+    <string name="row">Row (2)</string>
+    <string name="column">Column (2)</string>
 </resources>

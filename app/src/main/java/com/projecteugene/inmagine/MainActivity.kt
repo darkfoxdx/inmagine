@@ -1,7 +1,6 @@
 package com.projecteugene.inmagine
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
@@ -29,15 +28,17 @@ class MainActivity : AppCompatActivity() {
         iv_canvas.setImageBitmap(canvasFx())
 
         btn_build.setOnClickListener {
-            val amountInGrid = et_amount.text.toString().toIntOrNull()
-            iv_canvas.setImageBitmap(canvasFx(amountInGrid))
+            val amountInRow = et_amount_x.text.toString().toIntOrNull()
+            val amountInColumn = et_amount_y.text.toString().toIntOrNull()
+            iv_canvas.setImageBitmap(canvasFx(amountInRow, amountInColumn))
         }
 
         btn_draw.setOnClickListener {
-            val amountInGrid = et_amount.text.toString().toIntOrNull()
+            val amountInRow = et_amount_x.text.toString().toIntOrNull()
+            val amountInColumn = et_amount_y.text.toString().toIntOrNull()
             filterList.clear()
             cg_filters.checkedChipIds.forEach { id -> addFilter(filterList, id) }
-            iv_canvas.setImageBitmap(canvasFx(amountInGrid, true, filterList))
+            iv_canvas.setImageBitmap(canvasFx(amountInRow, amountInColumn, true, filterList))
         }
     }
 
@@ -45,12 +46,14 @@ class MainActivity : AppCompatActivity() {
      * Function that will draw a square grid based on the amount, images if possible and apply filters to images.
      * and returns as a bitmap
      *
-     * @param amount        Amount of squares in a row
+     * @param amountX        Amount of squares in a row
+     * @param amountY        Amount of squares in a column
      * @param drawImages    Boolean to draw images if true
      * @param list          Filters to apply to images
      */
-    private fun canvasFx(amount: Int? = 2, drawImages: Boolean = false, list: MutableList<GPUImageFilter> = ArrayList()): Bitmap {
-        val actualAmount = amount ?: 2
+    private fun canvasFx(amountX: Int? = 2, amountY: Int? = 2, drawImages: Boolean = false, list: MutableList<GPUImageFilter> = ArrayList()): Bitmap {
+        val actualAmountX = amountX ?: 2
+        val actualAmountY = amountY ?: 2
         val fillPaint = PaintUtils.fillPaint(Color.WHITE)
         val strokePaint = PaintUtils.strokePaint(Color.BLACK)
         val imagePaint = PaintUtils.imagePaint()
@@ -62,33 +65,36 @@ class MainActivity : AppCompatActivity() {
         val canvas = Canvas(bitmap)
         canvas.drawRGB(218, 218, 218)
 
-        // Square size is canvas minus all the margins (amount + 1) divided by the amount
-        val squareSize = (canvasSize - ((actualAmount + 1) * margin)) / actualAmount
-        if (squareSize > 0) {
-            for (x in 0 until actualAmount) {          // x
-                for (y in 0 until actualAmount) {      // y
-                    canvas.save()
-                    val totalMarginSizeX = margin * (x + 1)
-                    val totalMarginSizeY = margin * (y + 1)
-                    val left = totalMarginSizeY.toFloat() + (squareSize * y)
-                    val top = totalMarginSizeX.toFloat() + (squareSize * x)
-                    val origin = 0f
-                    canvas.translate(left, top)
-                    canvas.drawRect(origin, origin, squareSize.toFloat(), squareSize.toFloat(), fillPaint)
-                    canvas.drawRect(origin, origin, squareSize.toFloat(), squareSize.toFloat(), strokePaint)
+        if (actualAmountX > 0 && actualAmountY > 0) {
+            // Square size is canvas minus all the margins (amount + 1) divided by the amount
+            val squareSizeX = (canvasSize - ((actualAmountX + 1) * margin)) / actualAmountX
+            val squareSizeY = (canvasSize - ((actualAmountY + 1) * margin)) / actualAmountY
+            if (squareSizeX > 0 && squareSizeY > 0) {
+                for (x in 0 until actualAmountX) {          // x
+                    for (y in 0 until actualAmountY) {      // y
+                        canvas.save()
+                        val totalMarginSizeX = margin * (x + 1)
+                        val totalMarginSizeY = margin * (y + 1)
+                        val top = totalMarginSizeY.toFloat() + (squareSizeY * y)
+                        val left = totalMarginSizeX.toFloat() + (squareSizeX * x)
+                        val origin = 0f
+                        canvas.translate(left, top)
+                        canvas.drawRect(origin, origin, squareSizeX.toFloat(), squareSizeY.toFloat(), fillPaint)
+                        canvas.drawRect(origin, origin, squareSizeX.toFloat(), squareSizeY.toFloat(), strokePaint)
 
-                    if (drawImages) {
-                        val position = (y + (actualAmount * x)) % images.size
-                        val imageCropped = createThumbnail(images[position], squareSize, list)
-                        canvas.drawBitmap(imageCropped, origin, origin, imagePaint)
+                        if (drawImages) {
+                            val position = (y + (actualAmountY * x)) % images.size
+                            val imageCropped = createThumbnail(images[position], squareSizeX, squareSizeY, list)
+                            canvas.drawBitmap(imageCropped, origin, origin, imagePaint)
+                        }
+                        canvas.restore()
                     }
-                    canvas.restore()
                 }
+            } else {
+                Toast.makeText(this, "Unable to draw that amount of squares in a row.", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(this, "Unable to draw that amount of squares in a row.", Toast.LENGTH_SHORT).show()
-        }
 
+        }
         return bitmap
     }
 
@@ -99,22 +105,22 @@ class MainActivity : AppCompatActivity() {
      * @param res           Image resource id
      * @param list          Filters to apply to images
      */
-    private fun createThumbnail(res: Int, size: Int, list: MutableList<GPUImageFilter>): Bitmap {
-        val image = BitmapUtils.decodeSampledBitmapFromResource(resources, res, size, size)
+    private fun createThumbnail(res: Int, sizeX: Int, sizeY: Int, list: MutableList<GPUImageFilter>): Bitmap {
+        val image = BitmapUtils.decodeSampledBitmapFromResource(resources, res, sizeX, sizeY)
         val scale: Float =
             if (image.width < image.height) {
-                size / image.width.toFloat()
+                sizeX / image.width.toFloat()
             } else {
-                size / image.height.toFloat()
+                sizeY / image.height.toFloat()
             }
 
         val scaledWidth = (image.width * scale).roundToInt()
         val scaledHeight = (image.height * scale).roundToInt()
 
         val scaled = Bitmap.createScaledBitmap(image, scaledWidth, scaledHeight, true)
-        val croppedX = (scaledWidth - size) / 2
-        val croppedY = (scaledHeight - size) / 2
-        val cropped = Bitmap.createBitmap(scaled, croppedX, croppedY, size, size)
+        val croppedX = (scaledWidth - sizeX) / 2
+        val croppedY = (scaledHeight - sizeY) / 2
+        val cropped = Bitmap.createBitmap(scaled, croppedX, croppedY, sizeX, sizeY)
 
         return applyFilter(cropped, list)
     }
